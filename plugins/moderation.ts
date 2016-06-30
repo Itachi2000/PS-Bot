@@ -17,37 +17,41 @@ let analyzedRooms: string[] = [];
 class ModerationPlugin implements IChatPlugin {
 
 	fillAnalyzedRooms() {
-		RoomDAO.getAllModeratedRooms(rooms => {
+		RoomDAO.getAllModeratedRooms().then((rooms: string[]) => {
 			analyzedRooms = rooms;
 		});
 	}
 
 	Commands: any = {
-		moderation: (userstr: string, message: string, room: string, callback: any): any => {
-			if (!room) return { pmreply: "This command can't be used in PMs." };
-			if (!Util.canUse(userstr, 5)) return { pmreply: "Permission denied." };
+		moderation: (userstr: string, message: string, room: string) => {
+			return new Promise((resolve, reject) => {
+				if (!room) return { pmreply: "This command can't be used in PMs." };
+				if (!Util.canUse(userstr, 5)) return { pmreply: "Permission denied." };
 
-			message = Util.toId(message);
-			switch (message) {
-				case 'on':
-				case 'true':
-				case 'yes':
-				case 'enable':
-					RoomDAO.setRoomModeration(Util.toId(room), 1, callback => {
-						this.fillAnalyzedRooms();
-					});
-					return callback({ reply: "Bot moderation was turned on in this room." });
-				case 'off':
-				case 'false':
-				case 'no':
-				case 'disable':
-					RoomDAO.setRoomModeration(Util.toId(room), 0, callback => {
-						this.fillAnalyzedRooms();
-					});
-					return callback({ reply: "Bot moderation was turned off in this room." });
-				default:
-					return callback({ pmreply: "Invalid value. Use 'on' or 'off'." });
-			}
+				message = Util.toId(message);
+				switch (message) {
+					case 'on':
+					case 'true':
+					case 'yes':
+					case 'enable':
+						RoomDAO.setRoomModeration(Util.toId(room), 1).then((result) => {
+							this.fillAnalyzedRooms();
+						});
+						resolve({ reply: "Bot moderation was turned on in this room." });
+						break;
+					case 'off':
+					case 'false':
+					case 'no':
+					case 'disable':
+						RoomDAO.setRoomModeration(Util.toId(room), 0).then((result) => {
+							this.fillAnalyzedRooms();
+						});
+						resolve({ reply: "Bot moderation was turned off in this room." });
+						break;
+					default:
+						resolve({ pmreply: "Invalid value. Use 'on' or 'off'." });
+				}
+			});
 		}
 	}
 

@@ -1,7 +1,7 @@
 import { Util } from "../util";
 import { IChatPlugin } from "../models/ichatplugin";
 
-const webserver = require('../webserver.ts');
+const webserver = require('../web-server.ts');
 
 const helpTopics = {
    commands: 'commands.html'
@@ -10,13 +10,15 @@ const helpTopics = {
 class HelpPlugin implements IChatPlugin {
 
    Commands: any = {
-      help: (userstr: string, message: string, room: string, callback: any): any => {
-         if (!Util.canUse(userstr, 1)) return callback({ pmreply: "Permission denied." });
-         if (!message) return callback({ reply: "Available help topics: " + Object.keys(helpTopics).join(', ') });
+      help: (userstr: string, message: string, room: string) => {
+         return new Promise((resolve, reject) => {
+            if (!Util.canUse(userstr, 1)) resolve({ pmreply: "Permission denied." });
+            if (!message) resolve({ reply: "Available help topics: " + Object.keys(helpTopics).join(', ') });
 
-         message = Util.toId(message);
-         if (!(message in helpTopics)) return callback({ pmreply: "Invalid option for topic." });
-         return callback({ reply: webserver.url + helpTopics[message] });
+            message = Util.toId(message);
+            if (!(message in helpTopics)) resolve({ pmreply: "Invalid option for topic." });
+            resolve({ reply: webserver.url + helpTopics[message] });
+         });
       }
    }
 }

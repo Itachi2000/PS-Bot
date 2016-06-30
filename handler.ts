@@ -1,6 +1,5 @@
 ///<reference path="./typings/index.d.ts"/>
 ///<reference path="./typings/node.d.ts"/>
-import { Promise } from 'es6-promise';
 import { Config } from "./config";
 import { Main } from "./main";
 import { Util } from "./util";
@@ -56,9 +55,8 @@ export module Handler {
         }
 
         let user = (!room && userstr[0] === ' ' ? '+' : userstr[0]) + username;
-        commands[cmd](user, words.join(' '), room, action => {
+        commands[cmd](user, words.join(' '), room).then((action) => {
             if (!action) return;
-
             if (action.then) {
                 action.then(val => parseAction(username, val, room));
             } else {
@@ -81,12 +79,15 @@ export module Handler {
         }
     }
 
-    function setup(callback: any) {
-        Main.Connection.send('|/avatar 184');
-        RoomDAO.getAllAutoJoinedRooms(rooms => {
-            Config.rooms = Config.rooms.concat(rooms);
-            Main.Connection.send('|/autojoin ' + Config.rooms.splice(0, 11).join(','));
-            callback(Util.statusMsg('Setup done.'));
+    function setup() {
+        return new Promise((resolve, reject) => {
+            Main.Connection.send('|/avatar 184');
+            RoomDAO.getAllAutoJoinedRooms().then((rooms: string[]) => {
+                Config.rooms = Config.rooms.concat(rooms);
+                Main.Connection.send('|/autojoin ' + Config.rooms.splice(0, 11).join(','));
+                Util.statusMsg('Setup done.')
+                resolve();
+            });
         });
     }
 
@@ -128,7 +129,7 @@ export module Handler {
                     break;
                 case 'updateuser':
                     if (split[2] !== Config.username) return false;
-                    setup(callback => {
+                    setup().then(() => {
                         Util.statusMsg('Logged in as ' + split[2] + '.');
 
                         if (Config.rooms.length) {

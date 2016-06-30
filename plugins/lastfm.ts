@@ -15,85 +15,89 @@ let lastfmData: any = [];
 class LastfmPlugin implements IChatPlugin {
 
    Commands: any = {
-      lastfm: (userstr: string, message: string, room: string, callback: any): any => {
-         if (!Util.canUse(userstr, 1)) return { pmreply: "Permission denied." };
+      lastfm: (userstr: string, message: string, room: string) => {
+         return new Promise((resolve, reject) => {
+            if (!Util.canUse(userstr, 1)) return { pmreply: "Permission denied." };
 
-         if (!Config.lastfmKey) return Util.errorMsg("No last.fm API key found.");
+            if (!Config.lastfmKey) return Util.errorMsg("No last.fm API key found.");
 
-         let userid = Util.toId(userstr);
-         let accountname = message || userstr.substr(1);
-         let userData = lastfmData.find(e => e.user === userid);
-         if (!message && (typeof userData !== typeof undefined)) message = userData.lastfm;
+            let userid = Util.toId(userstr);
+            let accountname = message || userstr.substr(1);
+            let userData = lastfmData.find(e => e.user === userid);
+            if (!message && (typeof userData !== typeof undefined)) message = userData.lastfm;
 
-         let url = API_ROOT + '?method=user.getrecenttracks&user=' + message + '&limit=1&api_key=' + Config.lastfmKey + '&format=json';
-         let req = new Promise(function (resolve, reject) {
-            request(url, function (error, response, body) {
-               if (error) {
-                  Util.errorMsg(error);
-                  reject(error);
+            let url = API_ROOT + '?method=user.getrecenttracks&user=' + message + '&limit=1&api_key=' + Config.lastfmKey + '&format=json';
+            let req = new Promise(function (resolve, reject) {
+               request(url, function (error, response, body) {
+                  if (error) {
+                     Util.errorMsg(error);
+                     reject(error);
+                  } else {
+                     resolve(JSON.parse(body));
+                  }
+               });
+            });
+
+            return req.then(data => {
+               let msg = '';
+               if (data["recenttracks"] && data["recenttracks"].track && data["recenttracks"].track.length) {
+                  msg += accountname;
+                  let track = data["recenttracks"].track[0];
+                  if (track['@attr'] && track['@attr'].nowplaying) {
+                     msg += " is now listening to: ";
+                  } else {
+                     msg += " was last seen listening to: ";
+                  }
+                  let trackname = '';
+                  // Should always be the case but just in case.
+                  if (track.artist && track.artist['#text']) {
+                     trackname += track.artist['#text'] + ' - ';
+                  }
+                  trackname += track.name;
+                  msg += trackname;
+                  let yturl = YT_ROOT + '?part=snippet&order=relevance&maxResults=1&q=' + encodeURIComponent(trackname) + '&key=' + Config.youtubekey;
+                  let yt = new Promise(function (resolve, reject) {
+                     request(yturl, function (error, response, body) {
+                        if (error) {
+                           Util.errorMsg(error);
+                           reject(error);
+                        } else {
+                           resolve(JSON.parse(body));
+                        }
+                     });
+                  });
+
+                  return yt.then(video => {
+                     if (video["error"]) {
+                        Util.errorMsg(video["error"].message);
+                        msg = 'Something went wrong with the youtube API.';
+                     } else if (video["items"] && video["items"].length && video["items"][0].id) {
+                        msg += ' ' + VIDEO_ROOT + video["items"][0].id.videoId;
+                        msg += ' | Profile link: http://www.last.fm/user/' + message;
+                     }
+                     resolve({ reply: msg });
+                  });
+               } else if (data["error"]) {
+                  resolve({ reply: msg + data["message"] + '.' });
                } else {
-                  resolve(JSON.parse(body));
+                  resolve({ reply: msg + message + ' doesn\'t seem to have listened to anything recently.' });
                }
             });
          });
-
-         return req.then(data => {
-            let msg = '';
-            if (data["recenttracks"] && data["recenttracks"].track && data["recenttracks"].track.length) {
-               msg += accountname;
-               let track = data["recenttracks"].track[0];
-               if (track['@attr'] && track['@attr'].nowplaying) {
-                  msg += " is now listening to: ";
-               } else {
-                  msg += " was last seen listening to: ";
-               }
-               let trackname = '';
-               // Should always be the case but just in case.
-               if (track.artist && track.artist['#text']) {
-                  trackname += track.artist['#text'] + ' - ';
-               }
-               trackname += track.name;
-               msg += trackname;
-               let yturl = YT_ROOT + '?part=snippet&order=relevance&maxResults=1&q=' + encodeURIComponent(trackname) + '&key=' + Config.youtubekey;
-               let yt = new Promise(function (resolve, reject) {
-                  request(yturl, function (error, response, body) {
-                     if (error) {
-                        Util.errorMsg(error);
-                        reject(error);
-                     } else {
-                        resolve(JSON.parse(body));
-                     }
-                  });
-               });
-
-               return yt.then(video => {
-                  if (video["error"]) {
-                     Util.errorMsg(video["error"].message);
-                     msg = 'Something went wrong with the youtube API.';
-                  } else if (video["items"] && video["items"].length && video["items"][0].id) {
-                     msg += ' ' + VIDEO_ROOT + video["items"][0].id.videoId;
-                     msg += ' | Profile link: http://www.last.fm/user/' + message;
-                  }
-                  return callback({ reply: msg });
-               });
-            } else if (data["error"]) {
-               return callback({ reply: msg + data["message"] + '.' });
-            } else {
-               return callback({ reply: msg + message + ' doesn\'t seem to have listened to anything recently.' });
-            }
-         });
       },
 
-      registerlastfm: (userstr: string, message: string, room: string, callback: any): any => {
-         if (!message) return { pmreply: "No username entered." };
+      registerlastfm: (userstr: string, message: string, room: string) => {
+         return new Promise((resolve, reject) => {
+            if (!message) resolve({ pmreply: "No username entered." });
 
-         let userid = Util.toId(userstr);
-         let username = message.replace(/[^A-Za-z0-9-_]/g, '');
+            let userid = Util.toId(userstr);
+            let username = message.replace(/[^A-Za-z0-9-_]/g, '');
 
-         lastfmData.push({ user: userid, lastfm: username });
-         UserDAO.setLastfmName(userid, username);
+            lastfmData.push({ user: userid, lastfm: username });
+            UserDAO.setLastfmName(userid, username);
 
-         return callback({ pmreply: "You've been registered as " + username + "." });
+            resolve({ pmreply: "You've been registered as " + username + "." });
+         });
       }
    }
 }
@@ -101,7 +105,7 @@ class LastfmPlugin implements IChatPlugin {
 fillLastfmData();
 
 function fillLastfmData() {
-   UserDAO.getAllLastfmNames(data => {
+   UserDAO.getAllLastfmNames().then((data: any[]) => {
       data.forEach(e => {
          lastfmData.push({ user: e.user_id, lastfm: e.lastfm_name });
       });
