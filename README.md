@@ -11,6 +11,5 @@ A Pokemon Showdown chatbot made in typescript.
 ###Todo
 
  - More plugins
- - Promises instead of callbacks, we are currently in callback hell!!
 
 **Note:** Not all javascript code has been rewritten to typescript yet! :(

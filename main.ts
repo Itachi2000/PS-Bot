@@ -7,7 +7,7 @@ export module Main {
    const server = require('./web-server.ts');
    server.init();
 
-   // Finally, open the connection to the Pokemon Showdown server.
+   // Open the connection to the Pokemon Showdown server.
    export var Connection: any = null;
    Connector.connect();
 

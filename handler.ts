@@ -134,16 +134,15 @@ export module Handler {
 
                         if (Config.rooms.length) {
                             Util.statusMsg('Joining additional rooms.');
-                            //TODO
-                            /* Config.rooms.map((room) => (
-                                 new Promise((resolve) => {
-                                     Main.Connection.send('|/join ' + room);
-                                     setTimeout(resolve, 500);
-                                 })
-                             )).reduce(
-                                 (thenable, p) => thenable.then(p),
-                                 Promise.resolve()
-                                 );*/
+                            Config.rooms.map((room) => (
+                                new Promise((resolve) => {
+                                    Main.Connection.send('|/join ' + room);
+                                    setTimeout(resolve, 500);
+                                })
+                            )).reduce(
+                                (thenable, p: any) => thenable.then(p),
+                                Promise.resolve()
+                                );
                         }
                     });
                     break;
