@@ -1,6 +1,8 @@
 {
   "globalDependencies": {
     "connect": "registry:dt/connect#3.4.0+20160317120654",
+    "node": "registry:dt/node#6.0.0+20160621231320",
+    "request": "registry:dt/request#0.0.0+20160524135346",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
     "sqlite3": "registry:dt/sqlite3#2.2.3+20160316155526",
     "websocket": "registry:dt/websocket#0.0.0+20160316155526"

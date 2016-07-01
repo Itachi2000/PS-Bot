@@ -1,4 +1,4 @@
-import WebSocket = require('websocket')
+import * as WebSocket  from 'websocket';
 import { Handler } from "./handler";
 import { Main } from "./main";
 import { Config } from "./config";

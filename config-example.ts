@@ -27,7 +27,7 @@ export module Config {
     export var checkIps: boolean = false;
 
     // Last.fm API key, used for the lastfm feature.
-    export var lastfmKey: string = '2';
+    export var lastfmKey: string = '';
 
     // youtube API key, used for the lastfm feature.
     export var youtubekey: string = '';

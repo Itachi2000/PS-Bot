@@ -1,14 +1,11 @@
-///<reference path="./typings/index.d.ts"/>
-///<reference path="./typings/node.d.ts"/>
+import * as fs from 'fs';
+import * as request from 'request';
 import { Config } from "./config";
 import { Main } from "./main";
 import { Util } from "./util";
 import { IChatPlugin } from "./models/ichatplugin";
 import { IAnalyzer } from "./models/ianalyzer.ts";
 import { RoomDAO } from "./models/roomdao";
-
-const fs = require("fs");
-const request = require('request');
 
 const ACTION_URL = 'http://play.pokemonshowdown.com/action.php';
 

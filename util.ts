@@ -1,9 +1,5 @@
-
-///<reference path="./typings/index.d.ts"/>
-///<reference path="./typings/node.d.ts"/>
 import { Config } from "./config";
 import { Main } from "./main";
-
 
 export module Util {
 

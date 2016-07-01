@@ -1,0 +1,20 @@
+{
+  "name": "ps-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.ts",
+  "scripts": {
+    "start": "ts-node main.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "connect": "^3.4.1",
+    "request": "^2.72.0",
+    "serve-static": "^1.11.1",
+    "sqlite3": "^3.1.4",
+    "websocket": "^1.0.23"
+  }
+}

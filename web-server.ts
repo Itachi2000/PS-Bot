@@ -1,11 +1,9 @@
+import * as path from 'path';
+import * as url from 'url';
+import * as connect from 'connect';
+import * as serveStatic from 'serve-static';
 import { Util } from "./util";
 import { Config } from "./config";
-
-const path = require('path');
-const url = require('url');
-
-const connect = require('connect');
-const serveStatic = require('serve-static');
 
 class WebServer {
 

@@ -1,10 +1,9 @@
+import * as request from 'request';
 import { UserDAO } from "../models/userdao";
 import { IChatPlugin } from "../models/ichatplugin";
 import { IAnalyzer } from "../models/ianalyzer.ts";
 import { Util } from "../util";
 import { Config } from "../config";
-
-const request = require('request');
 
 const API_ROOT = 'http://ws.audioscrobbler.com/2.0/';
 const YT_ROOT = 'https://www.googleapis.com/youtube/v3/search';
